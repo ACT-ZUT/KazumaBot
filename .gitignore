@@ -4,6 +4,8 @@
 # VS files
 .vs/
 Logo/
+KazumaBot/discordBotEnv
+launchBot\.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -64,3 +66,5 @@ docs/_build/
 
 # PyBuilder
 target/
+
+

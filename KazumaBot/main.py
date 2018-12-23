@@ -5,14 +5,20 @@ from time import sleep
 #from datetime import *
 from discord.ext import commands
 
+# TODO List
+# .check command which shows every log info since launch
+#
+
+# Checking owner id
+def owner_id(ctx):
+    return ctx.message.author.id == config["owner_id"]
 
 # Bot initialization
 with open('./config.json', 'r') as cjson:
     config = json.load(cjson)
 Kazuma = commands.Bot(command_prefix=config["prefix"], owner_id=config["owner_id"])
 Kazuma.config = config
-modules = config["modules"]
-start_time = datetime.datetime.now()
+Kazuma.config["start_time"] = datetime.datetime.now()
 
 # Bot events
 @Kazuma.event
@@ -28,7 +34,7 @@ async def on_ready():
     print("-----------------------------------------")
     print("Logged in as: " + Kazuma.user.name)
     print("Bot User ID: " + str(Kazuma.user.id))
-    print("Launch time: " + str(start_time))
+    print("Launch time: " + str(config["start_time"]))
     print("Location: " + str(os.path.abspath(__file__)))
     print("----------------------------------------\n")
 
@@ -39,35 +45,39 @@ async def on_ready():
     print("Running discord.py version " + discord.__version__)
     print("-----------------------------------------") 
 
-# Bot commands
-@Kazuma.command()
-async def uptime(ctx):
-    '''
-    Shows bot uptime
-    '''
-    current_time = datetime.datetime.now()
-    difference = current_time - start_time
-    days = difference.days
-    hours, remainder = divmod(difference.seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    text = "{} dni, {} godzin, {} minut, {} sekund".format(days, hours, minutes, seconds)
+@Kazuma.event
+async def on_error(event, *args, **kwargs):
+    logging.basicConfig(level=logging.WARNING, filename="error.log", filemode="a+",
+                        format="%(asctime)-15s %(levelname)-8s %(message)s")
+    logging.error(event + " -> " + str(args) + " " + str(kwargs))
 
-    embed = discord.Embed()
-    embed.add_field(name="Uptime", value=text)
-    embed.set_footer(text="KazumaBot v" + config["version"])
+# Bot commands (owner)
+@Kazuma.command()
+@commands.check(owner_id)
+async def kill(ctx):
+    """Kill bot"""
+    await client.logout()
+
+@Kazuma.command()
+@commands.check(owner_id)
+async def restart(ctx):
+    """Restarts bot"""
     try:
-        await ctx.send(embed=embed)
-    except discord.HTTPException:
-        await ctx.send("Current uptime: " + text)
+        sleep(1)
+        await ctx.message.add_reaction("\u2705")
+        os.execv(sys.executable, [sys.executable] +  ['main.py'])
+    except:
+        await ctx.send("Something went wrong!")
     return
 
+# Bot commands
+
 def ready(client, config):
-    for module in modules:
+    for module in config["modules"]:
         try:
             client.load_extension("modules." + module)
         except Exception as e:
             raise Exception(e)
-        return
 
 ready(Kazuma, config)
 Kazuma.run(config["token"])

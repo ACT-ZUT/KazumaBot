@@ -12,6 +12,7 @@
     <Name>KazumaBot</Name>
     <RootNamespace>KazumaBot</RootNamespace>
     <PublishUrl>\\RASPBERRYPI\Projects\KazumaBot</PublishUrl>
+    <InterpreterId>Global|VisualStudio|discordBotEnv</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,15 +24,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="main.py" />
+    <Compile Include="modules\club.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="modules\info.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.json">
       <Publish>True</Publish>
     </Content>
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="modules\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|VisualStudio|discordBotEnv" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
